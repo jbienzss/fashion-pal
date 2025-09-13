@@ -8,11 +8,12 @@ alwaysApply: true
 - The image of the user can be submitted as a file or captured using the webcam.
 - The application must run on desktop and mobile phone browsers.
 - The application interface should be pleasing, modern, and adapt to different screen sizes.
+- DO NOT CREATE ANY TESTS / TEST FILES for the project
 
 # Architecture
-- This will be a single page application that should run entirely in the browser and not depend on backend code.
+- The application would have a backend in NodeJs and a frontend in ReactJS
 - We will use ReactJS to make the application responsive and avoid page reloads.
-- We use Webpack to manage dependencies and deal transpiling.
+- We use Vitejs to manage dependencies and deal transpiling.
 
 # User Flow
 
