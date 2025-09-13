@@ -1,0 +1,25 @@
+---
+description: Instructions for building Fashion Pal.
+globs:
+alwaysApply: true
+---
+# General
+- Fashion Pal is a web application that takes in an image of a user and a description of an event they'd like to attend, then recommends outfits from Amazons catalog and visualizes the user wearing those outfits at the specified event.
+- The image of the user can be submitted as a file or captured using the webcam.
+- The application must run on desktop and mobile phone browsers.
+- The application interface should be pleasing, modern, and adapt to different screen sizes.
+
+# Architecture
+- This will be a single page application that should run entirely in the browser and not depend on backend code.
+- We will use ReactJS to make the application responsive and avoid page reloads.
+- We use Webpack to manage dependencies and deal transpiling.
+
+# User Flow
+
+
+# UX
+
+# AI APIs
+- We will leverage [Nano Banana](https://ai.google.dev/gemini-api/docs/image-generation) for image generation.
+- We will leverage [Runway AI](https://docs.dev.runwayml.com/) for video generation.
+- Whenever code generation help is needed, leverage @file ./Context7.mdc to verify API signatures or determine which APIs to use.
