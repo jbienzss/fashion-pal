@@ -45,6 +45,12 @@ const FormWizard: React.FC<FormWizardProps> = ({ steps, onComplete }) => {
 
   const prevStep = () => {
     if (currentStep > 0) {
+      // Remove completion status from current step when going back
+      setCompletedSteps(prev => {
+        const newCompletedSteps = new Set(prev);
+        newCompletedSteps.delete(currentStep);
+        return newCompletedSteps;
+      });
       setCurrentStep(currentStep - 1);
     }
   };
