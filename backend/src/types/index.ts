@@ -28,8 +28,8 @@ export interface ApiResponse<T = any> {
 }
 
 export interface PreviewOutfitImageRequest {
-  personalInfo: PersonalInfo;
   products: Product[];
+  imageBuffer?: Buffer;
 }
 
 export interface PreviewOutfitImageData {

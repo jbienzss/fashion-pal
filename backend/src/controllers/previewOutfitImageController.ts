@@ -11,33 +11,36 @@ export class PreviewOutfitImageController {
 
     /**
      * Handles POST request for preview-outfit-image endpoint
-     * @param req - Express request object
+     * @param req - Express request object with file and JSON data
      * @param res - Express response object
      */
     public generateOutfitPreview = async (req: Request, res: Response): Promise<void> => {
         try {
-            // Validate request body
-            if (!req.body || !req.body.personalInfo || !req.body.products) {
+            // Validate that image file was uploaded
+            if (!req.file) {
                 res.status(400).json({
                     success: false,
-                    error: 'Invalid request body',
-                    message: 'Request must include personalInfo and products'
+                    error: 'No image file provided',
+                    message: 'Request must include an image file'
                 });
                 return;
             }
 
-            // Validate required personalInfo fields
-            if (!req.body.personalInfo.age || !req.body.personalInfo.gender) {
+            // Parse JSON data from form fields
+            let products;
+            try {
+                products = JSON.parse(req.body.products);
+            } catch (parseError) {
                 res.status(400).json({
                     success: false,
-                    error: 'Invalid personalInfo',
-                    message: 'personalInfo must include age and gender'
+                    error: 'Invalid JSON data',
+                    message: 'products must be a valid JSON string'
                 });
                 return;
             }
 
             // Validate products array
-            if (!Array.isArray(req.body.products) || req.body.products.length === 0) {
+            if (!Array.isArray(products) || products.length === 0) {
                 res.status(400).json({
                     success: false,
                     error: 'Invalid products',
@@ -47,7 +50,7 @@ export class PreviewOutfitImageController {
             }
 
             // Validate each product has required fields
-            for (const product of req.body.products) {
+            for (const product of products) {
                 if (!product.title || !product.price || !product.description || !product.imageUrl || !product.productUrl) {
                     res.status(400).json({
                         success: false,
@@ -58,7 +61,11 @@ export class PreviewOutfitImageController {
                 }
             }
 
-            const request: PreviewOutfitImageRequest = req.body;
+            // Create request object with image buffer
+            const request: PreviewOutfitImageRequest = {
+                products,
+                imageBuffer: req.file.buffer
+            };
 
             // Generate outfit preview using the service
             const response: ApiResponse<PreviewOutfitImageData> = await this.previewOutfitImageService.generateOutfitPreview(request);
