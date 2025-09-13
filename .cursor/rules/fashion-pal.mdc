@@ -11,14 +11,15 @@ alwaysApply: true
 - DO NOT CREATE ANY TESTS / TEST FILES for the project
 
 # Architecture
-- The application would have a backend in NodeJs and a frontend in ReactJS
-- We will use ReactJS to make the application responsive and avoid page reloads.
+- The application would have a backend in NodeJs and a frontend in NextJS
+- We will use NextJs to make the application responsive and avoid page reloads.
 - We use Vitejs to manage dependencies and deal transpiling.
 
 # User Flow
 
 
 # UX
+- Use tailwindcss for styling.
 
 # AI APIs
 - We will leverage [Nano Banana](https://ai.google.dev/gemini-api/docs/image-generation) for image generation.
