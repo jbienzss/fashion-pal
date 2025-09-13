@@ -65,12 +65,12 @@ const FormWizard: React.FC<FormWizardProps> = ({ steps, onComplete }) => {
                 className={`
                   flex items-center justify-center w-8 h-8 rounded-full text-xs font-medium transition-all duration-200
                   ${isStepCompleted(index)
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25'
                     : index === currentStep
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25'
                     : isStepAccessible(index)
-                    ? 'bg-gray-300 text-gray-600 hover:bg-gray-400'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    ? 'bg-orange-600/20 text-orange-300 hover:bg-orange-600/30 hover:text-orange-200 border border-orange-700/50'
+                    : 'bg-dark-700 text-dark-400 cursor-not-allowed border border-dark-600'
                   }
                 `}
               >
@@ -84,7 +84,7 @@ const FormWizard: React.FC<FormWizardProps> = ({ steps, onComplete }) => {
               </button>
               
               {index < steps.length - 1 && (
-                <div className={`w-8 h-0.5 mx-1 ${isStepCompleted(index) ? 'bg-green-500' : 'bg-gray-300'}`} />
+                <div className={`w-8 h-0.5 mx-1 ${isStepCompleted(index) ? 'bg-orange-500' : 'bg-orange-600/30'}`} />
               )}
             </div>
           ))}
@@ -92,8 +92,8 @@ const FormWizard: React.FC<FormWizardProps> = ({ steps, onComplete }) => {
         
         {/* Step Title and Description */}
         <div className="text-center mt-3">
-          <h2 className="text-xl font-bold text-gray-900">{steps[currentStep].title}</h2>
-          <p className="text-sm text-gray-600 mt-1">{steps[currentStep].description}</p>
+          <h2 className="text-xl font-bold text-dark-100">{steps[currentStep].title}</h2>
+          <p className="text-sm text-dark-300 mt-1">{steps[currentStep].description}</p>
         </div>
       </div>
 
@@ -121,8 +121,8 @@ const FormWizard: React.FC<FormWizardProps> = ({ steps, onComplete }) => {
           className={`
             px-6 py-2 rounded-lg font-medium transition-all duration-200
             ${currentStep === 0
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-gray-500 text-white hover:bg-gray-600'
+              ? 'bg-dark-700 text-dark-400 cursor-not-allowed border border-dark-600'
+              : 'bg-orange-600/20 text-orange-200 hover:bg-orange-600/30 hover:text-orange-100 border border-orange-700/50'
             }
           `}
         >
@@ -133,12 +133,12 @@ const FormWizard: React.FC<FormWizardProps> = ({ steps, onComplete }) => {
           {steps.map((_, index) => (
             <div
               key={index}
-              className={`w-2 h-2 rounded-full ${
+              className={`w-2 h-2 rounded-full transition-all duration-200 ${
                 index === currentStep
-                  ? 'bg-blue-500'
+                  ? 'bg-orange-500 shadow-lg shadow-orange-500/50'
                   : isStepCompleted(index)
-                  ? 'bg-green-500'
-                  : 'bg-gray-300'
+                  ? 'bg-orange-500 shadow-lg shadow-orange-500/50'
+                  : 'bg-orange-600/40'
               }`}
             />
           ))}
@@ -150,8 +150,8 @@ const FormWizard: React.FC<FormWizardProps> = ({ steps, onComplete }) => {
           className={`
             px-6 py-2 rounded-lg font-medium transition-all duration-200
             ${currentStep === steps.length - 1
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
+              ? 'bg-dark-700 text-dark-400 cursor-not-allowed border border-dark-600'
+              : 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40'
             }
           `}
         >
