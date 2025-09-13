@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { recommendProductsRoutes } from './routes/recommendProductsRoutes';
+import { previewOutfitImageRoutes } from './routes/previewOutfitImageRoutes';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/recommend-products', recommendProductsRoutes);
+app.use('/api/preview-outfit-image', previewOutfitImageRoutes);
 
 // Error handling middleware
 app.use(notFoundHandler);
@@ -31,6 +33,7 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`🚀 Fashion Pal Backend server running on port ${PORT}`);
   console.log(`👗 Recommend products endpoint available at http://localhost:${PORT}/api/recommend-products`);
+  console.log(`🖼️ Preview outfit image endpoint available at http://localhost:${PORT}/api/preview-outfit-image`);
 });
 
 export default app;

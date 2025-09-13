@@ -6,11 +6,13 @@ export interface Product {
   productUrl: string;
 }
 
+export interface PersonalInfo {
+  age: number;
+  gender: string;
+}
+
 export interface RecommendProductsRequest {
-  personalInfo: {
-    age: number;
-    gender: string;
-  };
+  personalInfo: PersonalInfo;
   eventDescription: string;
 }
 
@@ -23,6 +25,15 @@ export interface ApiResponse<T = any> {
   data?: T;
   message?: string;
   error?: string;
+}
+
+export interface PreviewOutfitImageRequest {
+  personalInfo: PersonalInfo;
+  products: Product[];
+}
+
+export interface PreviewOutfitImageData {
+  outfitPreviewImageUrl: string;
 }
 
 export interface ErrorResponse {

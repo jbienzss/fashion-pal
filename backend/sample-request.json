@@ -1,7 +1,36 @@
 {
   "personalInfo": {
     "age": 28,
-    "gender": "male"
+    "gender": "female"
   },
-  "eventDescription": "friend's wedding in an outdoor garden, semi-formal dress code, looking for something elegant but not too formal"
+  "products": [
+    {
+      "title": "Classic White Button-Down Shirt",
+      "price": 29.99,
+      "description": "Crisp white cotton button-down shirt with classic collar and button closure. Perfect for professional and casual wear.",
+      "imageUrl": "https://m.media-amazon.com/images/I/71K8QvQZbNL._AC_UY1100_.jpg",
+      "productUrl": "https://www.amazon.com/dp/B08XYZ123"
+    },
+    {
+      "title": "High-Waisted Black Trousers",
+      "price": 45.50,
+      "description": "Tailored black trousers with high waist and straight leg fit. Made from premium stretch fabric for comfort and style.",
+      "imageUrl": "https://m.media-amazon.com/images/I/61ABC123DEF._AC_UY1100_.jpg",
+      "productUrl": "https://www.amazon.com/dp/B09ABC456"
+    },
+    {
+      "title": "Black Leather Ankle Boots",
+      "price": 89.99,
+      "description": "Genuine leather ankle boots with low heel and comfortable sole. Perfect for both professional and casual occasions.",
+      "imageUrl": "https://m.media-amazon.com/images/I/71DEF456GHI._AC_UY1100_.jpg",
+      "productUrl": "https://www.amazon.com/dp/B10DEF789"
+    },
+    {
+      "title": "Minimalist Gold Necklace",
+      "price": 24.99,
+      "description": "Delicate gold-plated necklace with simple chain design. Adds elegance to any outfit without being overwhelming.",
+      "imageUrl": "https://m.media-amazon.com/images/I/51GHI789JKL._AC_UY1100_.jpg",
+      "productUrl": "https://www.amazon.com/dp/B11GHI012"
+    }
+  ]
 }
