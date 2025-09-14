@@ -28,12 +28,13 @@ export interface ApiResponse<T = any> {
 }
 
 export interface PreviewOutfitImageRequest {
+  eventDescription: string;
   products: Product[];
-  imageBuffer?: Buffer;
+  userImage?: Buffer;
 }
 
 export interface PreviewOutfitImageData {
-  outfitPreviewImageUrl: string;
+  outfitPreviewImageBuffer: Buffer;
 }
 
 export interface ErrorResponse {

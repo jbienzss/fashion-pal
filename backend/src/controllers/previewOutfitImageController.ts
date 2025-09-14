@@ -61,10 +61,22 @@ export class PreviewOutfitImageController {
                 }
             }
 
+            // Parse event description from form fields
+            const eventDescription = req.body.eventDescription;
+            if (!eventDescription) {
+                res.status(400).json({
+                    success: false,
+                    error: 'No event description provided',
+                    message: 'eventDescription is required'
+                });
+                return;
+            }
+
             // Create request object with image buffer
             const request: PreviewOutfitImageRequest = {
+                eventDescription,
                 products,
-                imageBuffer: req.file.buffer
+                userImage: req.file.buffer
             };
 
             // Generate outfit preview using the service
@@ -80,7 +92,7 @@ export class PreviewOutfitImageController {
             const errorResponse: ApiResponse<PreviewOutfitImageData> = {
                 success: false,
                 data: {
-                    outfitPreviewImageUrl: ''
+                    outfitPreviewImageBuffer: Buffer.alloc(0)
                 },
                 error: 'Internal server error',
                 message: error instanceof Error ? error.message : 'Unknown error occurred'
