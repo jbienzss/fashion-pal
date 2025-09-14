@@ -1,5 +1,5 @@
 import { PreviewOutfitImageRequest, PreviewOutfitImageData, ApiResponse, Product } from '../types';
-import { GoogleGenAI, createPartFromUri, createUserContent, Part } from '@google/genai';
+import { GoogleGenAI, createPartFromUri, createUserContent, Part, File } from '@google/genai';
 import * as fs from 'node:fs';
 import fetch from 'node-fetch';
 
@@ -83,7 +83,6 @@ export class PreviewOutfitImageService {
                 .replace('{event_description}', request.eventDescription);
 
             // Prepare content array starting with the prompt
-            const contents: any[] = [{ parts: [{ text: prompt }] }];
             const parts: Array<Part> = [];
             const uploadedFileNames: string[] = [];
 
@@ -94,11 +93,13 @@ export class PreviewOutfitImageService {
                     throw new Error('Unsupported user image format');
                 }
 
-                const userImageName = await this.uploadImageToFilesAPI(request.userImage, userImageMimeType, ai);
-                if (!userImageName) {
+                const userImageFile = await this.uploadImageToFilesAPI(request.userImage, userImageMimeType, ai);
+                if (!userImageFile) {
                     throw new Error('Failed to upload user image to Files API');
                 }
-                parts.push(createPartFromUri(userImageName.uri, userImageName.mimeType));
+                parts.push(createPartFromUri(userImageFile.uri!, userImageFile.mimeType!));
+                console.log('userImageFile', userImageFile);
+                uploadedFileNames.push(userImageFile.name!);
                 // contents[0].parts.push({ inlineData: { mimeType: userImageMimeType, data: request.userImage.toString('base64') } });
 
                 // Download and upload product images to Files API
@@ -110,8 +111,9 @@ export class PreviewOutfitImageService {
                             if (mimeType && PreviewOutfitImageService.SUPPORTED_MIME_TYPES.includes(mimeType)) {
                                 const productImageName = await this.uploadImageToFilesAPI(productImageBuffer, mimeType, ai);
                                 if (productImageName) {
-                                    parts.push(createPartFromUri(productImageName.uri, productImageName.mimeType));
-                                    // contents[0].parts.push({ inlineData: { mimeType: mimeType, data: productImageBuffer.toString('base64') } });
+                                    parts.push(createPartFromUri(productImageName.uri!, productImageName.mimeType!));
+                                    uploadedFileNames.push(productImageName.name!);
+                                    console.log('productImageName', productImageName);
                                 }
                             }
                         }
@@ -127,9 +129,12 @@ export class PreviewOutfitImageService {
                 throw error;
             }
 
+            const contents: any[] = [{ parts: [{ text: prompt }] }];
+            console.log('contents', contents);
+
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image-preview',
-                contents: [{ text: prompt }, ...parts]
+                contents: contents
             });
 
             // Extract image data from response
@@ -180,7 +185,7 @@ export class PreviewOutfitImageService {
      * @param ai - The GoogleGenAI client instance
      * @returns Promise<string | null> - The file name or null if upload fails
      */
-    private async uploadImageToFilesAPI(imageBuffer: Buffer, mimeType: string, ai: GoogleGenAI): Promise<{uri: string, mimeType: string} | null> {
+    private async uploadImageToFilesAPI(imageBuffer: Buffer, mimeType: string, ai: GoogleGenAI): Promise<File> {
         try {
             // Convert Buffer to Blob for upload
             const blob = new Blob([imageBuffer], { type: mimeType });
@@ -188,7 +193,7 @@ export class PreviewOutfitImageService {
                 file: blob,
                 config: { mimeType: mimeType }
             });
-            return {uri: file.uri || '', mimeType: file.mimeType || ''};
+            return file;
         } catch (error) {
             console.error('Failed to upload image to Files API:', error);
             return null;
