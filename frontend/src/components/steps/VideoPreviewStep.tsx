@@ -5,6 +5,7 @@ import LoadingScreen from '../LoadingScreen';
 interface VideoPreviewStepProps {
   previewImageDataUrl?: string;
   videoUrl?: string;
+  eventDescription?: string;
   onVideoGenerated?: (videoUrl: string) => void;
 }
 
@@ -17,6 +18,7 @@ interface VideoPreviewStepProps {
 const VideoPreviewStep: React.FC<VideoPreviewStepProps> = ({ 
   previewImageDataUrl,
   videoUrl,
+  eventDescription,
   onVideoGenerated
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -50,7 +52,7 @@ const VideoPreviewStep: React.FC<VideoPreviewStepProps> = ({
       const videoUrl = await generateVideoFromImage(
         previewImageDataUrl,
         {
-          promptText: 'A person wearing the selected outfit, moving naturally and elegantly in a professional setting',
+          promptText: `A person featured moving naturally and appropriately ${eventDescription ? ` at ${eventDescription}` : ''}`,
           ratio: '1280:720',
           duration: 5,
         },
