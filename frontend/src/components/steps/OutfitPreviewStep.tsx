@@ -25,7 +25,7 @@ interface OutfitPreviewStepProps {
 const OutfitPreviewStep: React.FC<OutfitPreviewStepProps> = ({ 
   previewImageDataUrl, 
   selectedProducts,
-  isLoading = false 
+  isLoading = false
 }) => {
   if (isLoading) {
     return (

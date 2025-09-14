@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { recommendProductsRoutes } from './routes/recommendProductsRoutes';
 import { previewOutfitImageRoutes } from './routes/previewOutfitImageRoutes';
+import videoGenerationRoutes from './routes/videoGenerationRoutes';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -18,8 +19,8 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 app.use(cors());
 app.use(morgan('combined'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -33,6 +34,7 @@ app.get('/api/health', (req, res) => {
 // Routes
 app.use('/api/recommend-products', recommendProductsRoutes);
 app.use('/api/preview-outfit-image', previewOutfitImageRoutes);
+app.use('/api/video-generation', videoGenerationRoutes);
 
 // Error handling middleware
 app.use(notFoundHandler);
@@ -43,6 +45,7 @@ app.listen(PORT, () => {
   console.log(`🚀 Fashion Pal Backend server running on port ${PORT}`);
   console.log(`👗 Recommend products endpoint available at http://localhost:${PORT}/api/recommend-products`);
   console.log(`🖼️ Preview outfit image endpoint available at http://localhost:${PORT}/api/preview-outfit-image`);
+  console.log(`🎥 Video generation endpoint available at http://localhost:${PORT}/api/video-generation`);
 });
 
 export default app;

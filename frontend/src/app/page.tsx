@@ -23,6 +23,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [backendStatus, setBackendStatus] = useState<'checking' | 'healthy' | 'unhealthy'>('checking');
   const [stepValidation, setStepValidation] = useState<boolean[]>([false, false, false, false, true, true]);
+  const [videoUrl, setVideoUrl] = useState<string>('');
 
   // Backend health check
   useEffect(() => {
@@ -156,7 +157,16 @@ export default function Home() {
       id: 6,
       title: 'Video Preview',
       description: 'Watch your outfit in motion',
-      content: <VideoPreviewStep />,
+      content: (
+        <VideoPreviewStep 
+          previewImageDataUrl={previewImageUrl}
+          videoUrl={videoUrl}
+          onVideoGenerated={(videoUrl) => {
+            setVideoUrl(videoUrl);
+            console.log('Video generated:', videoUrl);
+          }}
+        />
+      ),
     },
   ];
 
