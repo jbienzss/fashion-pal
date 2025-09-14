@@ -136,6 +136,7 @@ export default function Home() {
         <PhotoUploadStep 
           onImageChange={setUploadedImage}
           onValidationChange={(isValid) => handleStepValidationChange(3, isValid)}
+          isLoading={isLoadingPreview}
         />
       ),
     },

@@ -97,6 +97,7 @@ const FormWizard: React.FC<FormWizardProps> = ({
         await onFetchRecommendations();
       } else if (currentStep === 3 && onGeneratePreview) {
         // After photo upload, generate outfit preview
+        // The loading state will be shown in the PhotoUploadStep component
         await onGeneratePreview();
         setCurrentStep(currentStep + 1);
       } else {
