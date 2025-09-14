@@ -62,11 +62,11 @@ export default function Home() {
   };
 
   const handleGenerateOutfitPreview = async () => {
-    if (!selectedProducts.length || !uploadedImage) return;
+    if (!selectedProducts.length || !uploadedImage || !eventDescription) return;
     
     setIsLoadingPreview(true);
     try {
-      const response = await generateOutfitPreview(selectedProducts, uploadedImage);
+      const response = await generateOutfitPreview(selectedProducts, uploadedImage, eventDescription);
       if (response.success && response.data) {
         setPreviewImageUrl(response.data.outfitPreviewImageUrl);
         setError(null);

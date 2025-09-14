@@ -51,11 +51,16 @@ export class PreviewOutfitImageController {
 
             // Validate each product has required fields
             for (const product of products) {
-                if (!product.title || !product.price || !product.description || !product.imageUrl || !product.productUrl) {
+                if (!product.title || 
+                    product.price === undefined || 
+                    product.price === null || 
+                    product.price <= 0 ||
+                    !product.imageUrl || 
+                    !product.productUrl) {
                     res.status(400).json({
                         success: false,
                         error: 'Invalid product',
-                        message: 'Each product must include title, price, description, imageUrl, and productUrl'
+                        message: 'Each product must include title, price, imageUrl, and productUrl'
                     });
                     return;
                 }

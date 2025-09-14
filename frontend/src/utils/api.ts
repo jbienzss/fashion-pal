@@ -92,18 +92,21 @@ export async function fetchRecommendations(
  */
 export async function generateOutfitPreview(
   products: Product[],
-  imageFile: File
+  imageFile: File,
+  eventDescription: string
 ): Promise<ApiResponse<PreviewOutfitImageData>> {
   try {
     const formData = new FormData();
     formData.append('products', JSON.stringify(products));
     formData.append('image', imageFile);
+    formData.append('eventDescription', eventDescription);
     
     const url = `${API_BASE_URL}/preview-outfit-image`;
     
     const response = await fetch(url, {
       method: 'POST',
       body: formData,
+      // Don't set Content-Type header - let browser set it with boundary
     });
 
     if (!response.ok) {

@@ -184,12 +184,29 @@ export class RecommendProductsService {
     try {
       const price = this.extractPrice(shoppingResult.price);
       
+      // Ensure all required fields have valid values
+      const title = shoppingResult.title?.trim() || 'Unknown Product';
+      const description = (shoppingResult.description || shoppingResult.snippet || 'No description available').trim();
+      const imageUrl = (shoppingResult.thumbnail || shoppingResult.image || '').trim();
+      const productUrl = (shoppingResult.link || shoppingResult.product_link || '').trim();
+      
+      // Only return product if all required fields are present and valid
+      if (!title || !imageUrl || !productUrl || price <= 0) {
+        console.warn('Skipping product due to missing required fields:', {
+          title: !!title,
+          imageUrl: !!imageUrl,
+          productUrl: !!productUrl,
+          price: price
+        });
+        return null;
+      }
+      
       return {
-        title: shoppingResult.title || 'Unknown Product',
-        price: price,
-        description: shoppingResult.description || shoppingResult.snippet || '',
-        imageUrl: shoppingResult.thumbnail || shoppingResult.image || '',
-        productUrl: shoppingResult.link || shoppingResult.product_link || '',
+        title,
+        price,
+        description,
+        imageUrl,
+        productUrl,
         rating: shoppingResult.rating,
         reviews: shoppingResult.reviews,
         brand: shoppingResult.brand || shoppingResult.source,
@@ -210,13 +227,21 @@ export class RecommendProductsService {
   private extractPrice(priceString: string | undefined): number {
     if (!priceString) return 0;
     
-    // Remove currency symbols and extract numeric value
-    const numericMatch = priceString.replace(/[^0-9.,]/g, '').match(/(\d+[.,]?\d*)/);
-    if (numericMatch) {
-      return parseFloat(numericMatch[1].replace(',', '.'));
+    try {
+      // Remove currency symbols and extract numeric value
+      const cleanPrice = priceString.replace(/[^0-9.,]/g, '');
+      const numericMatch = cleanPrice.match(/(\d+[.,]?\d*)/);
+      
+      if (numericMatch) {
+        const price = parseFloat(numericMatch[1].replace(',', '.'));
+        return isNaN(price) ? 0 : price;
+      }
+      
+      return 0;
+    } catch (error) {
+      console.warn('Error extracting price from:', priceString, error);
+      return 0;
     }
-    
-    return 0;
   }
 
   /**
@@ -274,6 +299,45 @@ export class RecommendProductsService {
       }
     });
 
+    // If we don't have enough categories, create some fallback products
+    if (Object.keys(categories).length === 0) {
+      console.warn('No valid products found from search results, creating fallback products');
+      categories['Fallback Outfit'] = this.createFallbackProducts();
+    }
+
     return [categories];
+  }
+
+  /**
+   * Creates fallback products when no valid products are found from search
+   * @returns Array of fallback products
+   */
+  private createFallbackProducts(): Product[] {
+    return [
+      {
+        title: 'Classic Black Dress',
+        price: 49.99,
+        description: 'Elegant black dress perfect for formal occasions',
+        imageUrl: 'https://via.placeholder.com/300x400/000000/FFFFFF?text=Black+Dress',
+        productUrl: 'https://example.com/black-dress',
+        availability: 'Available'
+      },
+      {
+        title: 'Professional Blazer',
+        price: 79.99,
+        description: 'Tailored blazer for business and formal events',
+        imageUrl: 'https://via.placeholder.com/300x400/2C3E50/FFFFFF?text=Blazer',
+        productUrl: 'https://example.com/blazer',
+        availability: 'Available'
+      },
+      {
+        title: 'Comfortable Dress Shoes',
+        price: 89.99,
+        description: 'Polished dress shoes for any formal occasion',
+        imageUrl: 'https://via.placeholder.com/300x400/8B4513/FFFFFF?text=Dress+Shoes',
+        productUrl: 'https://example.com/dress-shoes',
+        availability: 'Available'
+      }
+    ];
   }
 }
