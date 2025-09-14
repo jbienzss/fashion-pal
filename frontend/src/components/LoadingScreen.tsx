@@ -11,7 +11,15 @@ const FUNNY_QUOTES = [
   "Parallel you is probably wearing the same outfit right now. Awkward.",
   "The many-worlds interpretation: every fashion choice creates a new timeline.",
   "Dark matter: the color of all your t-shirts.",
-  "The anthropic principle: the universe exists because you need somewhere to wear your outfits."
+  "The anthropic principle: the universe exists because you need somewhere to wear your outfits.",
+  "I'm never overdressed or underdressed - I exist in a quantum superposition of both.",
+  "In a parallel universe, your outfit chooses you.",
+  "Uncertainty principle: the more you try to dress appropriately, the less certain you are.",
+  "My shopping cart has more items than my closet.",
+  "Online shopping: where you buy things you didn't know you needed until 2 AM.",
+  "The algorithm knows my style better than I do, and I'm not mad about it.",
+  "I have a PhD in 'Add to Cart' but haven't figured out 'Remove from Cart'.",
+  "I'm not addicted to shopping, I'm just optimizing my wardrobe algorithm."
 ];
 // #endregion [Private Constants]
 
