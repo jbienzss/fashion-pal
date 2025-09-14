@@ -1,5 +1,5 @@
 import { PreviewOutfitImageRequest, PreviewOutfitImageData, ApiResponse, Product } from '../types';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, createPartFromUri, createUserContent, Part } from '@google/genai';
 import * as fs from 'node:fs';
 import fetch from 'node-fetch';
 
@@ -84,6 +84,7 @@ export class PreviewOutfitImageService {
 
             // Prepare content array starting with the prompt
             const contents: any[] = [{ parts: [{ text: prompt }] }];
+            const parts: Array<Part> = [];
             const uploadedFileNames: string[] = [];
 
             try {
@@ -97,8 +98,8 @@ export class PreviewOutfitImageService {
                 if (!userImageName) {
                     throw new Error('Failed to upload user image to Files API');
                 }
-                uploadedFileNames.push(userImageName);
-                contents[0].parts.push({ inlineData: { mimeType: userImageMimeType, data: request.userImage.toString('base64') } });
+                parts.push(createPartFromUri(userImageName.uri, userImageName.mimeType));
+                // contents[0].parts.push({ inlineData: { mimeType: userImageMimeType, data: request.userImage.toString('base64') } });
 
                 // Download and upload product images to Files API
                 for (const product of request.products) {
@@ -109,8 +110,8 @@ export class PreviewOutfitImageService {
                             if (mimeType && PreviewOutfitImageService.SUPPORTED_MIME_TYPES.includes(mimeType)) {
                                 const productImageName = await this.uploadImageToFilesAPI(productImageBuffer, mimeType, ai);
                                 if (productImageName) {
-                                    uploadedFileNames.push(productImageName);
-                                    contents[0].parts.push({ inlineData: { mimeType: mimeType, data: productImageBuffer.toString('base64') } });
+                                    parts.push(createPartFromUri(productImageName.uri, productImageName.mimeType));
+                                    // contents[0].parts.push({ inlineData: { mimeType: mimeType, data: productImageBuffer.toString('base64') } });
                                 }
                             }
                         }
@@ -120,9 +121,6 @@ export class PreviewOutfitImageService {
                     }
                 }
 
-                if (uploadedFileNames.length === 0) {
-                    throw new Error('No images were successfully uploaded');
-                }
             } catch (error) {
                 // Clean up uploaded files if generation fails
                 await this.cleanupUploadedFiles(uploadedFileNames, ai);
@@ -131,7 +129,7 @@ export class PreviewOutfitImageService {
 
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image-preview',
-                contents: contents
+                contents: [{ text: prompt }, ...parts]
             });
 
             // Extract image data from response
@@ -182,7 +180,7 @@ export class PreviewOutfitImageService {
      * @param ai - The GoogleGenAI client instance
      * @returns Promise<string | null> - The file name or null if upload fails
      */
-    private async uploadImageToFilesAPI(imageBuffer: Buffer, mimeType: string, ai: GoogleGenAI): Promise<string | null> {
+    private async uploadImageToFilesAPI(imageBuffer: Buffer, mimeType: string, ai: GoogleGenAI): Promise<{uri: string, mimeType: string} | null> {
         try {
             // Convert Buffer to Blob for upload
             const blob = new Blob([imageBuffer], { type: mimeType });
@@ -190,7 +188,7 @@ export class PreviewOutfitImageService {
                 file: blob,
                 config: { mimeType: mimeType }
             });
-            return file.name || null;
+            return {uri: file.uri || '', mimeType: file.mimeType || ''};
         } catch (error) {
             console.error('Failed to upload image to Files API:', error);
             return null;
