@@ -4,6 +4,7 @@ import * as fs from 'node:fs';
 import fetch from 'node-fetch';
 
 export class PreviewOutfitImageService {
+    private usesFileUpload: boolean;
     private static instance: PreviewOutfitImageService;
     private static GEN_PROMPT_TEMPLATE =
         'The person in the first image wearing all of the items in the other ' +
@@ -18,7 +19,9 @@ export class PreviewOutfitImageService {
         'image/heif'
     ];
 
-    private constructor() { }
+    private constructor() { 
+        this.usesFileUpload = false;
+    }
 
     public static getInstance(): PreviewOutfitImageService {
         if (!PreviewOutfitImageService.instance) {
@@ -83,6 +86,7 @@ export class PreviewOutfitImageService {
                 .replace('{event_description}', request.eventDescription);
 
             // Prepare content array starting with the prompt
+            const base64Contents: any[] = [{ parts: [{ text: prompt }] }];
             const parts: Array<Part> = [];
             const uploadedFileNames: string[] = [];
 
@@ -97,6 +101,7 @@ export class PreviewOutfitImageService {
                 if (!userImageFile) {
                     throw new Error('Failed to upload user image to Files API');
                 }
+                base64Contents[0].parts.push({ inlineData: { mimeType: userImageMimeType, data: request.userImage.toString('base64') } });
                 parts.push(createPartFromUri(userImageFile.uri!, userImageFile.mimeType!));
                 console.log('userImageFile', userImageFile);
                 uploadedFileNames.push(userImageFile.name!);
@@ -111,6 +116,7 @@ export class PreviewOutfitImageService {
                             if (mimeType && PreviewOutfitImageService.SUPPORTED_MIME_TYPES.includes(mimeType)) {
                                 const productImageName = await this.uploadImageToFilesAPI(productImageBuffer, mimeType, ai);
                                 if (productImageName) {
+                                    base64Contents[0].parts.push({ inlineData: { mimeType: mimeType, data: productImageBuffer.toString('base64') } });
                                     parts.push(createPartFromUri(productImageName.uri!, productImageName.mimeType!));
                                     uploadedFileNames.push(productImageName.name!);
                                     console.log('productImageName', productImageName);
@@ -135,7 +141,7 @@ export class PreviewOutfitImageService {
 
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image-preview',
-                contents: contents
+                contents: this.usesFileUpload ? contents : base64Contents
             });
 
             // Extract image data from response
