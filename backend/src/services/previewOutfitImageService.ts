@@ -83,7 +83,7 @@ export class PreviewOutfitImageService {
                 .replace('{event_description}', request.eventDescription);
 
             // Prepare content array starting with the prompt
-            const contents: any[] = [{ text: prompt }];
+            const contents: any[] = [{ parts: [{ text: prompt }] }];
             const uploadedFileNames: string[] = [];
 
             try {
@@ -98,7 +98,7 @@ export class PreviewOutfitImageService {
                     throw new Error('Failed to upload user image to Files API');
                 }
                 uploadedFileNames.push(userImageName);
-                contents.push({ fileData: { mimeType: userImageMimeType, fileUri: userImageName } });
+                contents[0].parts.push({ inlineData: { mimeType: userImageMimeType, data: request.userImage.toString('base64') } });
 
                 // Download and upload product images to Files API
                 for (const product of request.products) {
@@ -110,7 +110,7 @@ export class PreviewOutfitImageService {
                                 const productImageName = await this.uploadImageToFilesAPI(productImageBuffer, mimeType, ai);
                                 if (productImageName) {
                                     uploadedFileNames.push(productImageName);
-                                    contents.push({ fileData: { mimeType: mimeType, fileUri: productImageName } });
+                                    contents[0].parts.push({ inlineData: { mimeType: mimeType, data: productImageBuffer.toString('base64') } });
                                 }
                             }
                         }
@@ -129,7 +129,6 @@ export class PreviewOutfitImageService {
                 throw error;
             }
 
-            // Generate content using Gemini
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image-preview',
                 contents: contents
