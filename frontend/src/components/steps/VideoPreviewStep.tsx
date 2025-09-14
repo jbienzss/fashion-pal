@@ -28,10 +28,10 @@ const VideoPreviewStep: React.FC<VideoPreviewStepProps> = ({
 
   // Auto-generate video when preview image is available
   useEffect(() => {
-    if (previewImageDataUrl && !currentVideoUrl && !isGenerating) {
+    if (previewImageDataUrl && !currentVideoUrl && !isGenerating && !error) {
       handleGenerateVideo();
     }
-  }, [previewImageDataUrl, currentVideoUrl, isGenerating]);
+  }, [previewImageDataUrl, currentVideoUrl, isGenerating, error]);
 
   // Monitor currentVideoUrl state changes
   useEffect(() => {
@@ -128,7 +128,10 @@ const VideoPreviewStep: React.FC<VideoPreviewStepProps> = ({
           </div>
           
           <button 
-            onClick={handleGenerateVideo}
+            onClick={() => {
+              setError(null);
+              handleGenerateVideo();
+            }}
             className="w-full px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 font-medium"
           >
             Try Again
@@ -202,7 +205,11 @@ const VideoPreviewStep: React.FC<VideoPreviewStepProps> = ({
               Get Shopping Links
             </button> */}
             <button 
-              onClick={handleGenerateVideo}
+              onClick={() => {
+                setError(null);
+                setCurrentVideoUrl(null);
+                handleGenerateVideo();
+              }}
               className="flex-1 px-4 py-2 bg-dark-600 text-dark-200 rounded-md hover:bg-dark-500 border border-dark-500 hover:border-dark-400 transition-all duration-200 font-medium"
             >
               Regenerate Video
