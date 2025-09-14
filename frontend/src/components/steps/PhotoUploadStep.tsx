@@ -49,6 +49,7 @@ const PhotoUploadStep: React.FC<PhotoUploadStepProps> = ({ onImageChange, onVali
       <LoadingScreen 
         title="Generating Your Outfit Preview"
         description="Creating a realistic visualization of you wearing the selected outfit..."
+        countdownSeconds={10}
       />
     );
   }

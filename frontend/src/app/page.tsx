@@ -161,6 +161,7 @@ export default function Home() {
         <VideoPreviewStep 
           previewImageDataUrl={previewImageUrl}
           videoUrl={videoUrl}
+          eventDescription={eventDescription}
           onVideoGenerated={(videoUrl) => {
             setVideoUrl(videoUrl);
             console.log('Video generated:', videoUrl);
