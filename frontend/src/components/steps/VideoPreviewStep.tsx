@@ -105,6 +105,7 @@ const VideoPreviewStep: React.FC<VideoPreviewStepProps> = ({
       <LoadingScreen 
         title="Generating Your Video"
         description="Creating your video in your outfit..."
+        countdownSeconds={25}
       />
     );
   }

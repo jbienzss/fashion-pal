@@ -105,6 +105,7 @@ const ProductSelectionStep: React.FC<ProductSelectionStepProps> = ({
       <LoadingScreen 
         title="Finding Perfect Outfits"
         description="Analyzing your preferences and event details..."
+        countdownSeconds={3}
       />
     );
   }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // #region [Private Constants]
@@ -18,6 +18,7 @@ const FUNNY_QUOTES = [
 interface LoadingScreenProps {
   title: string;
   description: string;
+  countdownSeconds?: number;
 }
 
 /**
@@ -25,11 +26,14 @@ interface LoadingScreenProps {
  * 
  * A reusable loading screen component that displays a spinner with
  * customizable title and description text, plus rotating funny quotes.
+ * Optionally displays a countdown timer in the bottom right corner.
  */
-const LoadingScreen: React.FC<LoadingScreenProps> = ({ title, description }) => {
+const LoadingScreen: React.FC<LoadingScreenProps> = ({ title, description, countdownSeconds }) => {
   // #region [Private Variables]
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(Math.floor(Math.random() * FUNNY_QUOTES.length));
   const [usedQuotes, setUsedQuotes] = useState<Set<number>>(new Set([Math.floor(Math.random() * FUNNY_QUOTES.length)]));
+  const [timeLeft, setTimeLeft] = useState<number | null>(countdownSeconds || null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   // #endregion [Private Variables]
 
   // #region [Private Methods]
@@ -69,10 +73,46 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ title, description }) => 
 
     return () => clearInterval(interval);
   }, []);
+
+  /**
+   * Effect hook to handle countdown timer logic
+   * Decrements timer every second and removes it when it reaches zero
+   */
+  useEffect(() => {
+    // Clear any existing timer first
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Only start timer if we have a valid countdown value
+    if (!countdownSeconds || countdownSeconds <= 0) return;
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev === null || prev <= 1) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
+          return null; // Remove countdown when it reaches zero
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // Cleanup function
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [countdownSeconds]); // Only depend on the initial prop, not the changing state
   // #endregion [Public Methods]
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative">
       <div className="bg-dark-700 p-4 rounded-lg shadow-sm border border-dark-600">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
@@ -103,6 +143,41 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ title, description }) => 
           </div>
         </div>
       </div>
+
+      {/* Countdown Timer - Bottom Right */}
+      {timeLeft !== null && timeLeft > 0 && (
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="absolute bottom-0 right-0 px-3 py-2 flex items-center gap-1"
+          >
+            {/* Crossfade Timer Display */}
+            <div className="relative overflow-hidden bg-dark-800 rounded flex items-center justify-center" style={{ width: '72px', height: '64px' }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={timeLeft}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ 
+                    duration: 0.3, 
+                    ease: "easeInOut"
+                  }}
+                  className="absolute inset-0 flex items-center justify-center text-orange-500 font-mono text-6xl font-bold"
+                >
+                  {timeLeft}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            
+            {/* "s" label */}
+            <span className="text-orange-500 font-mono text-4xl font-bold ml-1">s</span>
+          </motion.div>
+        </AnimatePresence>
+      )}
     </div>
   );
 };
