@@ -56,10 +56,27 @@ async function apiRequest<T>(
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`Backend API error for ${endpoint}:`, {
+        status: response.status,
+        statusText: response.statusText,
+        response: errorText
+      });
+      throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    
+    // Log backend response for debugging
+    if (!data.success) {
+      console.error('Backend returned error response:', {
+        endpoint,
+        success: data.success,
+        error: data.error,
+        message: data.message
+      });
+    }
+    
     return data;
   } catch (error) {
     console.error(`API request failed for ${endpoint}:`, error);
@@ -110,10 +127,25 @@ export async function generateOutfitPreview(
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`Backend API error for preview-outfit-image:`, {
+        status: response.status,
+        statusText: response.statusText,
+        response: errorText
+      });
+      throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    
+    // Log backend response for debugging
+    if (!data.success) {
+      console.error('Backend returned error response:', {
+        success: data.success,
+        error: data.error,
+        message: data.message
+      });
+    }
     
     // Convert buffer to data URL if successful
     if (data.success && data.data?.outfitPreviewImageBuffer) {
