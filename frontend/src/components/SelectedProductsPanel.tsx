@@ -29,7 +29,7 @@ const SelectedProductsPanel: React.FC<SelectedProductsPanelProps> = ({
       
       // Add a small delay between opening tabs to avoid popup blockers
       if (i < selectedProducts.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 250));
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
     }
   };
