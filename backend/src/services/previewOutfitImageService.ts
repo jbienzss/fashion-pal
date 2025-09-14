@@ -18,9 +18,6 @@ export class PreviewOutfitImageService {
         'image/heif'
     ];
 
-    // Threshold for using File API vs inline data (300KB)
-    private static FILE_API_THRESHOLD = 300 * 1024;
-
     private constructor() { }
 
     public static getInstance(): PreviewOutfitImageService {
@@ -87,37 +84,49 @@ export class PreviewOutfitImageService {
 
             // Prepare content array starting with the prompt
             const contents: any[] = [{ text: prompt }];
+            const uploadedFileNames: string[] = [];
 
-            // Add user image as first attachment
-            const userImageMimeType = this.detectMimeType(request.userImage);
-            contents.push({
-                inlineData: {
-                    mimeType: userImageMimeType,
-                    data: request.userImage.toString('base64')
+            try {
+                // Upload user image to Files API
+                const userImageMimeType = this.detectMimeType(request.userImage);
+                if (!userImageMimeType || !PreviewOutfitImageService.SUPPORTED_MIME_TYPES.includes(userImageMimeType)) {
+                    throw new Error('Unsupported user image format');
                 }
-            });
 
-            // Download and add product images
-            for (const product of request.products) {
-                try {
-                    const productImageBuffer = await this.downloadImage(product.imageUrl);
-                    if (productImageBuffer) {
-                        const mimeType = this.detectMimeType(productImageBuffer);
-                        if (mimeType && PreviewOutfitImageService.SUPPORTED_MIME_TYPES.includes(mimeType)) {
-                            // For now, use inline data for all images
-                            // TODO: Implement File API for large images (>300KB)
-                            contents.push({
-                                inlineData: {
-                                    mimeType: mimeType,
-                                    data: productImageBuffer.toString('base64')
+                const userImageName = await this.uploadImageToFilesAPI(request.userImage, userImageMimeType, ai);
+                if (!userImageName) {
+                    throw new Error('Failed to upload user image to Files API');
+                }
+                uploadedFileNames.push(userImageName);
+                contents.push({ fileData: { mimeType: userImageMimeType, fileUri: userImageName } });
+
+                // Download and upload product images to Files API
+                for (const product of request.products) {
+                    try {
+                        const productImageBuffer = await this.downloadImage(product.imageUrl);
+                        if (productImageBuffer) {
+                            const mimeType = this.detectMimeType(productImageBuffer);
+                            if (mimeType && PreviewOutfitImageService.SUPPORTED_MIME_TYPES.includes(mimeType)) {
+                                const productImageName = await this.uploadImageToFilesAPI(productImageBuffer, mimeType, ai);
+                                if (productImageName) {
+                                    uploadedFileNames.push(productImageName);
+                                    contents.push({ fileData: { mimeType: mimeType, fileUri: productImageName } });
                                 }
-                            });
+                            }
                         }
+                    } catch (error) {
+                        console.warn(`Failed to process product image for ${product.title}:`, error);
+                        // Continue with other images even if one fails
                     }
-                } catch (error) {
-                    console.warn(`Failed to download product image for ${product.title}:`, error);
-                    // Continue with other images even if one fails
                 }
+
+                if (uploadedFileNames.length === 0) {
+                    throw new Error('No images were successfully uploaded');
+                }
+            } catch (error) {
+                // Clean up uploaded files if generation fails
+                await this.cleanupUploadedFiles(uploadedFileNames, ai);
+                throw error;
             }
 
             // Generate content using Gemini
@@ -145,6 +154,9 @@ export class PreviewOutfitImageService {
                 throw new Error('No image data received from Gemini API');
             }
 
+            // Clean up uploaded files after successful generation
+            await this.cleanupUploadedFiles(uploadedFileNames, ai);
+
             return {
                 success: true,
                 data: {
@@ -161,6 +173,44 @@ export class PreviewOutfitImageService {
                 error: 'Failed to generate outfit preview',
                 message: error instanceof Error ? error.message : 'Unknown error occurred'
             };
+        }
+    }
+
+    /**
+     * Uploads an image buffer to Gemini Files API
+     * @param imageBuffer - The image buffer to upload
+     * @param mimeType - The MIME type of the image
+     * @param ai - The GoogleGenAI client instance
+     * @returns Promise<string | null> - The file name or null if upload fails
+     */
+    private async uploadImageToFilesAPI(imageBuffer: Buffer, mimeType: string, ai: GoogleGenAI): Promise<string | null> {
+        try {
+            // Convert Buffer to Blob for upload
+            const blob = new Blob([imageBuffer], { type: mimeType });
+            const file = await ai.files.upload({
+                file: blob,
+                config: { mimeType: mimeType }
+            });
+            return file.name || null;
+        } catch (error) {
+            console.error('Failed to upload image to Files API:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Cleans up uploaded files from Gemini Files API
+     * @param fileNames - Array of file names to delete
+     * @param ai - The GoogleGenAI client instance
+     */
+    private async cleanupUploadedFiles(fileNames: string[], ai: GoogleGenAI): Promise<void> {
+        for (const fileName of fileNames) {
+            try {
+                await ai.files.delete({ name: fileName });
+            } catch (error) {
+                console.warn(`Failed to delete file ${fileName}:`, error);
+                // Continue with other files even if one fails
+            }
         }
     }
 
