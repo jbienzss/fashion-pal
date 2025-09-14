@@ -129,8 +129,9 @@ export class PreviewOutfitImageService {
                 throw error;
             }
 
-            const contents: any[] = [{ parts: [{ text: prompt }] }];
-            console.log('contents', contents);
+            const contents = [{ text: prompt }, ...parts];
+
+            console.log('CONTENTS', JSON.stringify(contents, null, 2));
 
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image-preview',
@@ -196,7 +197,7 @@ export class PreviewOutfitImageService {
             return file;
         } catch (error) {
             console.error('Failed to upload image to Files API:', error);
-            return null;
+            throw error;
         }
     }
 
