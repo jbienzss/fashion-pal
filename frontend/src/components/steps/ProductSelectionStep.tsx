@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import LoadingScreen from '@/components/LoadingScreen';
 
 interface Product {
   title: string;
@@ -99,17 +100,10 @@ const ProductSelectionStep: React.FC<ProductSelectionStepProps> = ({
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="bg-dark-700 p-4 rounded-lg shadow-sm border border-dark-600">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-              <h3 className="text-lg font-semibold text-dark-100 mb-2">Finding Perfect Outfits</h3>
-              <p className="text-sm text-dark-300">Analyzing your preferences and event details...</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <LoadingScreen 
+        title="Finding Perfect Outfits"
+        description="Analyzing your preferences and event details..."
+      />
     );
   }
 

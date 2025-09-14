@@ -1,5 +1,6 @@
 import React from 'react';
 import SelectedProductsPanel from '@/components/SelectedProductsPanel';
+import LoadingScreen from '@/components/LoadingScreen';
 
 interface Product {
   title: string;
@@ -28,17 +29,10 @@ const OutfitPreviewStep: React.FC<OutfitPreviewStepProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="bg-dark-700 p-4 rounded-lg shadow-sm border border-dark-600">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-              <h3 className="text-lg font-semibold text-dark-100 mb-2">Generating Your Outfit Preview</h3>
-              <p className="text-sm text-dark-300">Creating a realistic visualization of you wearing the selected outfit...</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <LoadingScreen 
+        title="Generating Your Outfit Preview"
+        description="Creating a realistic visualization of you wearing the selected outfit..."
+      />
     );
   }
 
