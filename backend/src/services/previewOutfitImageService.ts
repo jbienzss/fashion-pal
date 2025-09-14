@@ -20,7 +20,7 @@ export class PreviewOutfitImageService {
         'image/heif'
     ];
 
-    private constructor() { 
+    private constructor() {
         this.usesFileUpload = false;
     }
 
@@ -112,7 +112,7 @@ export class PreviewOutfitImageService {
                 if (!mergedProductImage) {
                     const productImageMergeService = ProductImageMergeService.getInstance();
                     // Enable debug mode to save merged images locally
-                    const mergedImage = await productImageMergeService.mergeProductImages(request.products);
+                    const mergedImage = await productImageMergeService.mergeProductImages(request.products, true);
                     mergedProductImage = mergedImage || undefined;
                 }
 

@@ -147,6 +147,7 @@ export default function Home() {
       content: (
         <OutfitPreviewStep 
           previewImageDataUrl={previewImageUrl}
+          selectedProducts={selectedProducts}
           isLoading={isLoadingPreview}
         />
       ),

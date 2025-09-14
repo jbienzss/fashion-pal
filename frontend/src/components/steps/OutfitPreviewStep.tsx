@@ -1,7 +1,17 @@
 import React from 'react';
+import SelectedProductsPanel from '@/components/SelectedProductsPanel';
+
+interface Product {
+  title: string;
+  price: number;
+  description: string;
+  imageUrl: string;
+  productUrl: string;
+}
 
 interface OutfitPreviewStepProps {
   previewImageDataUrl: string; // Data URL from buffer
+  selectedProducts: Product[];
   isLoading?: boolean;
 }
 
@@ -13,6 +23,7 @@ interface OutfitPreviewStepProps {
  */
 const OutfitPreviewStep: React.FC<OutfitPreviewStepProps> = ({ 
   previewImageDataUrl, 
+  selectedProducts,
   isLoading = false 
 }) => {
   if (isLoading) {
@@ -75,14 +86,20 @@ const OutfitPreviewStep: React.FC<OutfitPreviewStepProps> = ({
           </div>
         </div>
         
-        <div className="mt-4 p-3 bg-orange-900/20 border border-orange-800/30 rounded-lg">
-          <h4 className="text-xs font-medium text-orange-300 mb-2">About This Preview:</h4>
-          <ul className="text-xs text-orange-200 space-y-1">
-            <li>• This is an AI-generated visualization</li>
-            <li>• The preview shows how the selected items would look on you</li>
-            <li>• Colors and fit may vary slightly from the actual products</li>
-            <li>• For best results, ensure good lighting in your original photo</li>
-          </ul>
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="p-3 bg-orange-900/20 border border-orange-800/30 rounded-lg">
+            <h4 className="text-xs font-medium text-orange-300 mb-2">About This Preview:</h4>
+            <ul className="text-xs text-orange-200 space-y-1">
+              <li>• This is an AI-generated visualization</li>
+              <li>• The preview shows how the selected items would look on you</li>
+              <li>• Colors and fit may vary slightly from the actual products</li>
+              <li>• For best results, ensure good lighting in your original photo</li>
+            </ul>
+          </div>
+          
+          <div className="lg:block">
+            <SelectedProductsPanel selectedProducts={selectedProducts} />
+          </div>
         </div>
       </div>
     </div>

@@ -35,7 +35,7 @@ export class RecommendProductsService {
   public async generateSearchTerms(request: RecommendProductsRequest): Promise<string[]> {
     try {
       const openaiApiKey = process.env.OPENAI_API_KEY;
-      
+
       if (!openaiApiKey) {
         throw new Error('OPENAI_API_KEY environment variable is not configured');
       }
@@ -111,7 +111,7 @@ export class RecommendProductsService {
    * @param searchTerms - Array of search terms to search for
    * @returns Promise<Array<{searchTerm: string, products: Product[]}>> - Array of search results with associated products
    */
-  public async searchProductsWithSerpApi(searchTerms: string[]): Promise<Array<{searchTerm: string, products: Product[]}>> {
+  public async searchProductsWithSerpApi(searchTerms: string[]): Promise<Array<{ searchTerm: string, products: Product[] }>> {
     try {
       const serpApiKey = process.env.SERP_API_KEY;
       if (!serpApiKey) {
@@ -132,7 +132,7 @@ export class RecommendProductsService {
 
           // Extract products from the response
           const products: Product[] = [];
-          
+
           // Google Shopping API returns results in shopping_results array
           if (response.shopping_results) {
             response.shopping_results.forEach((shoppingResult: any) => {
@@ -167,7 +167,7 @@ export class RecommendProductsService {
 
       // Wait for all searches to complete
       const searchResults = await Promise.all(searchPromises);
-      
+
       // Filter out empty results and return search results with products
       return searchResults.filter(result => result.products.length > 0);
     } catch (error) {
@@ -182,14 +182,15 @@ export class RecommendProductsService {
    */
   private mapGoogleShoppingResultToProduct(shoppingResult: any): Product | null {
     try {
+      console.log('SHOPPING RESULT', JSON.stringify(shoppingResult, null, 2));
       const price = this.extractPrice(shoppingResult.price);
-      
+
       // Ensure all required fields have valid values
       const title = shoppingResult.title?.trim() || 'Unknown Product';
       const description = (shoppingResult.description || shoppingResult.snippet || 'No description available').trim();
       const imageUrl = (shoppingResult.thumbnail || shoppingResult.image || '').trim();
       const productUrl = (shoppingResult.link || shoppingResult.product_link || '').trim();
-      
+
       // Only return product if all required fields are present and valid
       if (!title || !imageUrl || !productUrl || price <= 0) {
         console.warn('Skipping product due to missing required fields:', {
@@ -200,7 +201,7 @@ export class RecommendProductsService {
         });
         return null;
       }
-      
+
       return {
         title,
         price,
@@ -226,17 +227,17 @@ export class RecommendProductsService {
    */
   private extractPrice(priceString: string | undefined): number {
     if (!priceString) return 0;
-    
+
     try {
       // Remove currency symbols and extract numeric value
       const cleanPrice = priceString.replace(/[^0-9.,]/g, '');
       const numericMatch = cleanPrice.match(/(\d+[.,]?\d*)/);
-      
+
       if (numericMatch) {
         const price = parseFloat(numericMatch[1].replace(',', '.'));
         return isNaN(price) ? 0 : price;
       }
-      
+
       return 0;
     } catch (error) {
       console.warn('Error extracting price from:', priceString, error);
@@ -284,14 +285,14 @@ export class RecommendProductsService {
    * @param searchResults - Array of search results with associated products
    * @returns Array<Record<string, Product[]>> - Products categorized by search terms
    */
-  private categorizeProductsBySearchTerms(searchResults: Array<{searchTerm: string, products: Product[]}>): Array<Record<string, Product[]>> {
+  private categorizeProductsBySearchTerms(searchResults: Array<{ searchTerm: string, products: Product[] }>): Array<Record<string, Product[]>> {
     if (searchResults.length === 0) {
       return [];
     }
 
     // Group products by their search terms
     const categories: Record<string, Product[]> = {};
-    
+
     searchResults.forEach(result => {
       if (result.products.length > 0) {
         // Use the search term as the category name

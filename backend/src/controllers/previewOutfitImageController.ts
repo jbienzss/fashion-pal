@@ -54,11 +54,11 @@ export class PreviewOutfitImageController {
 
             // Validate each product has required fields
             for (const product of products) {
-                if (!product.title || 
-                    product.price === undefined || 
-                    product.price === null || 
+                if (!product.title ||
+                    product.price === undefined ||
+                    product.price === null ||
                     product.price <= 0 ||
-                    !product.imageUrl || 
+                    !product.imageUrl ||
                     !product.productUrl) {
                     res.status(400).json({
                         success: false,
@@ -132,11 +132,11 @@ export class PreviewOutfitImageController {
 
             // Validate each product has required fields
             for (const product of products) {
-                if (!product.title || 
-                    product.price === undefined || 
-                    product.price === null || 
+                if (!product.title ||
+                    product.price === undefined ||
+                    product.price === null ||
                     product.price <= 0 ||
-                    !product.imageUrl || 
+                    !product.imageUrl ||
                     !product.productUrl) {
                     res.status(400).json({
                         success: false,
@@ -148,7 +148,7 @@ export class PreviewOutfitImageController {
             }
 
             // Merge product images with debug mode enabled
-            const mergedImageBuffer = await this.productImageMergeService.mergeProductImages(products);
+            const mergedImageBuffer = await this.productImageMergeService.mergeProductImages(products, true);
 
             if (!mergedImageBuffer) {
                 res.status(500).json({
