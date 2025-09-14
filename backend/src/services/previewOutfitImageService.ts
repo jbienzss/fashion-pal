@@ -1,5 +1,6 @@
 import { PreviewOutfitImageRequest, PreviewOutfitImageData, ApiResponse, Product } from '../types';
 import { GoogleGenAI, createPartFromUri, createUserContent, Part, File } from '@google/genai';
+import { ProductImageMergeService } from './productImageMergeService';
 import * as fs from 'node:fs';
 import fetch from 'node-fetch';
 
@@ -8,7 +9,7 @@ export class PreviewOutfitImageService {
     private static instance: PreviewOutfitImageService;
     private static GEN_PROMPT_TEMPLATE =
         'The person in the first image wearing all of the items in the other ' +
-        'images at {event_description}.';
+        'images at {event_description}. Generate a photo realistic image of the person wearing the items in the other images at given event. Aspect ratio should be 3:4';
 
     // Supported image MIME types according to Gemini API documentation
     private static SUPPORTED_MIME_TYPES = [
@@ -105,28 +106,29 @@ export class PreviewOutfitImageService {
                 parts.push(createPartFromUri(userImageFile.uri!, userImageFile.mimeType!));
                 console.log('userImageFile', userImageFile);
                 uploadedFileNames.push(userImageFile.name!);
-                // contents[0].parts.push({ inlineData: { mimeType: userImageMimeType, data: request.userImage.toString('base64') } });
 
-                // Download and upload product images to Files API
-                for (const product of request.products) {
-                    try {
-                        const productImageBuffer = await this.downloadImage(product.imageUrl);
-                        if (productImageBuffer) {
-                            const mimeType = this.detectMimeType(productImageBuffer);
-                            if (mimeType && PreviewOutfitImageService.SUPPORTED_MIME_TYPES.includes(mimeType)) {
-                                const productImageName = await this.uploadImageToFilesAPI(productImageBuffer, mimeType, ai);
-                                if (productImageName) {
-                                    base64Contents[0].parts.push({ inlineData: { mimeType: mimeType, data: productImageBuffer.toString('base64') } });
-                                    parts.push(createPartFromUri(productImageName.uri!, productImageName.mimeType!));
-                                    uploadedFileNames.push(productImageName.name!);
-                                    console.log('productImageName', productImageName);
-                                }
-                            }
+                // Use merged product image if available, otherwise merge product images on the fly
+                let mergedProductImage: Buffer | undefined = request.mergedProductImage;
+                if (!mergedProductImage) {
+                    const productImageMergeService = ProductImageMergeService.getInstance();
+                    // Enable debug mode to save merged images locally
+                    const mergedImage = await productImageMergeService.mergeProductImages(request.products);
+                    mergedProductImage = mergedImage || undefined;
+                }
+
+                if (mergedProductImage) {
+                    const mergedImageMimeType = this.detectMimeType(mergedProductImage);
+                    if (mergedImageMimeType && PreviewOutfitImageService.SUPPORTED_MIME_TYPES.includes(mergedImageMimeType)) {
+                        const mergedImageFile = await this.uploadImageToFilesAPI(mergedProductImage, mergedImageMimeType, ai);
+                        if (mergedImageFile) {
+                            base64Contents[0].parts.push({ inlineData: { mimeType: mergedImageMimeType, data: mergedProductImage.toString('base64') } });
+                            parts.push(createPartFromUri(mergedImageFile.uri!, mergedImageFile.mimeType!));
+                            uploadedFileNames.push(mergedImageFile.name!);
+                            console.log('mergedProductImageFile', mergedImageFile);
                         }
-                    } catch (error) {
-                        console.warn(`Failed to process product image for ${product.title}:`, error);
-                        // Continue with other images even if one fails
                     }
+                } else {
+                    throw new Error('Failed to create merged product image');
                 }
 
             } catch (error) {
@@ -223,25 +225,6 @@ export class PreviewOutfitImageService {
         }
     }
 
-    /**
-     * Downloads an image from a URL
-     * @param url - The URL to download the image from
-     * @returns Promise<Buffer | null> - The image buffer or null if download fails
-     */
-    private async downloadImage(url: string): Promise<Buffer | null> {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const arrayBuffer = await response.arrayBuffer();
-            return Buffer.from(arrayBuffer);
-        } catch (error) {
-            console.error(`Failed to download image from ${url}:`, error);
-            return null;
-        }
-    }
 
     /**
      * Detects MIME type from image buffer by examining the file signature

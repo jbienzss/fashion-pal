@@ -36,6 +36,7 @@ export interface PreviewOutfitImageRequest {
   eventDescription: string;
   products: Product[];
   userImage?: Buffer;
+  mergedProductImage?: Buffer;
 }
 
 export interface PreviewOutfitImageData {

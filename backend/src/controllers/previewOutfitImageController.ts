@@ -1,12 +1,15 @@
 import { Request, Response } from 'express';
 import { PreviewOutfitImageService } from '../services/previewOutfitImageService';
-import { PreviewOutfitImageRequest, PreviewOutfitImageData, ApiResponse } from '../types';
+import { ProductImageMergeService } from '../services/productImageMergeService';
+import { PreviewOutfitImageRequest, PreviewOutfitImageData, ApiResponse, Product } from '../types';
 
 export class PreviewOutfitImageController {
     private previewOutfitImageService: PreviewOutfitImageService;
+    private productImageMergeService: ProductImageMergeService;
 
     constructor() {
         this.previewOutfitImageService = PreviewOutfitImageService.getInstance();
+        this.productImageMergeService = ProductImageMergeService.getInstance();
     }
 
     /**
@@ -104,6 +107,75 @@ export class PreviewOutfitImageController {
             };
 
             res.status(500).json(errorResponse);
+        }
+    };
+
+    /**
+     * Handles POST request for merging product images
+     * @param req - Express request object with JSON data containing products
+     * @param res - Express response object
+     */
+    public mergeProductImages = async (req: Request, res: Response): Promise<void> => {
+        try {
+            // Parse products from request body
+            const { products } = req.body;
+
+            // Validate products array
+            if (!Array.isArray(products) || products.length === 0) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Invalid products',
+                    message: 'products must be a non-empty array'
+                });
+                return;
+            }
+
+            // Validate each product has required fields
+            for (const product of products) {
+                if (!product.title || 
+                    product.price === undefined || 
+                    product.price === null || 
+                    product.price <= 0 ||
+                    !product.imageUrl || 
+                    !product.productUrl) {
+                    res.status(400).json({
+                        success: false,
+                        error: 'Invalid product',
+                        message: 'Each product must include title, price, imageUrl, and productUrl'
+                    });
+                    return;
+                }
+            }
+
+            // Merge product images with debug mode enabled
+            const mergedImageBuffer = await this.productImageMergeService.mergeProductImages(products);
+
+            if (!mergedImageBuffer) {
+                res.status(500).json({
+                    success: false,
+                    error: 'Failed to merge images',
+                    message: 'Could not create merged product image'
+                });
+                return;
+            }
+
+            // Return the merged image as base64
+            res.status(200).json({
+                success: true,
+                data: {
+                    mergedImageBuffer: mergedImageBuffer.toString('base64')
+                },
+                message: 'Product images merged successfully'
+            });
+
+        } catch (error) {
+            console.error('Error in merge product images controller:', error);
+
+            res.status(500).json({
+                success: false,
+                error: 'Internal server error',
+                message: error instanceof Error ? error.message : 'Unknown error occurred'
+            });
         }
     };
 }
