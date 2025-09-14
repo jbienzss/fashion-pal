@@ -71,11 +71,16 @@ const PersonalInformationStep: React.FC<PersonalInformationStepProps> = ({ onDat
               value={gender}
               onChange={(e) => handleGenderChange(e.target.value)}
               className="w-full px-3 py-2 text-sm bg-dark-600 border border-dark-500 rounded-md text-dark-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-orange-600/50 transition-colors"
+              style={{
+                colorScheme: 'dark',
+                backgroundColor: '#374151',
+                color: '#f3f4f6'
+              }}
             >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="non-binary">Non-binary</option>
+              <option value="" style={{ backgroundColor: '#374151', color: '#f3f4f6' }}>Select gender</option>
+              <option value="male" style={{ backgroundColor: '#374151', color: '#f3f4f6' }}>Male</option>
+              <option value="female" style={{ backgroundColor: '#374151', color: '#f3f4f6' }}>Female</option>
+              <option value="non-binary" style={{ backgroundColor: '#374151', color: '#f3f4f6' }}>Non-binary</option>
             </select>
           </div>
           {!isValid && (
