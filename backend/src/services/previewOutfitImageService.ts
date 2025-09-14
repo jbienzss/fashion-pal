@@ -104,7 +104,6 @@ export class PreviewOutfitImageService {
                 }
                 base64Contents[0].parts.push({ inlineData: { mimeType: userImageMimeType, data: request.userImage.toString('base64') } });
                 parts.push(createPartFromUri(userImageFile.uri!, userImageFile.mimeType!));
-                console.log('userImageFile', userImageFile);
                 uploadedFileNames.push(userImageFile.name!);
 
                 // Use merged product image if available, otherwise merge product images on the fly
@@ -112,7 +111,7 @@ export class PreviewOutfitImageService {
                 if (!mergedProductImage) {
                     const productImageMergeService = ProductImageMergeService.getInstance();
                     // Enable debug mode to save merged images locally
-                    const mergedImage = await productImageMergeService.mergeProductImages(request.products, true);
+                    const mergedImage = await productImageMergeService.mergeProductImages(request.products);
                     mergedProductImage = mergedImage || undefined;
                 }
 
@@ -124,7 +123,6 @@ export class PreviewOutfitImageService {
                             base64Contents[0].parts.push({ inlineData: { mimeType: mergedImageMimeType, data: mergedProductImage.toString('base64') } });
                             parts.push(createPartFromUri(mergedImageFile.uri!, mergedImageFile.mimeType!));
                             uploadedFileNames.push(mergedImageFile.name!);
-                            console.log('mergedProductImageFile', mergedImageFile);
                         }
                     }
                 } else {
@@ -138,8 +136,6 @@ export class PreviewOutfitImageService {
             }
 
             const contents = [{ text: prompt }, ...parts];
-
-            console.log('CONTENTS', JSON.stringify(contents, null, 2));
 
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image-preview',
@@ -155,7 +151,6 @@ export class PreviewOutfitImageService {
                     if (part.inlineData && part.inlineData.data) {
                         imageBuffer = Buffer.from(part.inlineData.data, 'base64');
                         totalBytes = imageBuffer.length;
-                        console.log(`Generated image size: ${totalBytes} bytes`);
                         break;
                     }
                 }

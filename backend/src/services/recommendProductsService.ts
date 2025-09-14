@@ -182,7 +182,6 @@ export class RecommendProductsService {
    */
   private mapGoogleShoppingResultToProduct(shoppingResult: any): Product | null {
     try {
-      console.log('SHOPPING RESULT', JSON.stringify(shoppingResult, null, 2));
       const price = this.extractPrice(shoppingResult.price);
 
       // Ensure all required fields have valid values
