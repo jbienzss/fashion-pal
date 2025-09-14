@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface OutfitPreviewStepProps {
-  previewImageUrl: string;
+  previewImageDataUrl: string; // Data URL from buffer
   isLoading?: boolean;
 }
 
@@ -12,7 +12,7 @@ interface OutfitPreviewStepProps {
  * the generated outfit preview image.
  */
 const OutfitPreviewStep: React.FC<OutfitPreviewStepProps> = ({ 
-  previewImageUrl, 
+  previewImageDataUrl, 
   isLoading = false 
 }) => {
   if (isLoading) {
@@ -31,7 +31,7 @@ const OutfitPreviewStep: React.FC<OutfitPreviewStepProps> = ({
     );
   }
 
-  if (!previewImageUrl) {
+  if (!previewImageDataUrl) {
     return (
       <div className="space-y-4">
         <div className="bg-dark-700 p-4 rounded-lg shadow-sm border border-dark-600">
@@ -62,7 +62,7 @@ const OutfitPreviewStep: React.FC<OutfitPreviewStepProps> = ({
         
         <div className="relative">
           <img 
-            src={previewImageUrl} 
+            src={previewImageDataUrl} 
             alt="Outfit Preview" 
             className="w-full max-w-lg mx-auto rounded-lg shadow-2xl"
             onError={(e) => {

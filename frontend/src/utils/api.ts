@@ -34,7 +34,7 @@ export interface RecommendProductsData {
 }
 
 export interface PreviewOutfitImageData {
-  outfitPreviewImageUrl: string;
+  outfitPreviewImageBuffer: string; // Base64 encoded buffer
 }
 
 /**
@@ -114,6 +114,19 @@ export async function generateOutfitPreview(
     }
 
     const data = await response.json();
+    
+    // Convert buffer to data URL if successful
+    if (data.success && data.data?.outfitPreviewImageBuffer) {
+      // The buffer comes as base64 string from the backend
+      const base64Buffer = data.data.outfitPreviewImageBuffer;
+      
+      // Determine MIME type from buffer signature
+      const mimeType = detectImageMimeType(base64Buffer);
+      
+      // Create data URL
+      data.data.outfitPreviewImageBuffer = `data:${mimeType};base64,${base64Buffer}`;
+    }
+    
     return data;
   } catch (error) {
     console.error('API request failed for preview-outfit-image:', error);
@@ -122,6 +135,51 @@ export async function generateOutfitPreview(
       error: error instanceof Error ? error.message : 'Unknown error occurred',
       message: 'Failed to generate outfit preview'
     };
+  }
+}
+
+/**
+ * Detects MIME type from base64 encoded buffer by examining the file signature
+ * @param base64Buffer - The base64 encoded buffer to analyze
+ * @returns string - The detected MIME type (defaults to 'image/png')
+ */
+function detectImageMimeType(base64Buffer: string): string {
+  try {
+    // Decode base64 to get the first few bytes
+    const binaryString = atob(base64Buffer);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // Check file signatures (magic numbers)
+    if (bytes.length < 4) return 'image/png';
+
+    // PNG signature: 89 50 4E 47
+    if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) {
+      return 'image/png';
+    }
+
+    // JPEG signature: FF D8 FF
+    if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) {
+      return 'image/jpeg';
+    }
+
+    // WebP signature: 52 49 46 46 (RIFF) followed by WEBP
+    if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) {
+      if (bytes.length >= 12) {
+        const webpSignature = bytes.slice(8, 12);
+        if (webpSignature[0] === 0x57 && webpSignature[1] === 0x45 && webpSignature[2] === 0x42 && webpSignature[3] === 0x50) {
+          return 'image/webp';
+        }
+      }
+    }
+
+    // Default to PNG if signature is not recognized
+    return 'image/png';
+  } catch (error) {
+    console.warn('Failed to detect MIME type, defaulting to PNG:', error);
+    return 'image/png';
   }
 }
 

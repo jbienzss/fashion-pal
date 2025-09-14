@@ -68,7 +68,7 @@ export default function Home() {
     try {
       const response = await generateOutfitPreview(selectedProducts, uploadedImage, eventDescription);
       if (response.success && response.data) {
-        setPreviewImageUrl(response.data.outfitPreviewImageUrl);
+        setPreviewImageUrl(response.data.outfitPreviewImageBuffer);
         setError(null);
       } else {
         const errorMessage = response.error || 'Failed to generate outfit preview';
@@ -145,7 +145,7 @@ export default function Home() {
       description: 'See how you look in the outfit',
       content: (
         <OutfitPreviewStep 
-          previewImageUrl={previewImageUrl}
+          previewImageDataUrl={previewImageUrl}
           isLoading={isLoadingPreview}
         />
       ),

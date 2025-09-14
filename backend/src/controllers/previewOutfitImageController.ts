@@ -97,7 +97,7 @@ export class PreviewOutfitImageController {
             const errorResponse: ApiResponse<PreviewOutfitImageData> = {
                 success: false,
                 data: {
-                    outfitPreviewImageBuffer: Buffer.alloc(0)
+                    outfitPreviewImageBuffer: Buffer.alloc(0).toString('base64')
                 },
                 error: 'Internal server error',
                 message: error instanceof Error ? error.message : 'Unknown error occurred'

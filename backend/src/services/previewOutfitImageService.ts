@@ -42,7 +42,7 @@ export class PreviewOutfitImageService {
                 return {
                     success: false,
                     data: {
-                        outfitPreviewImageBuffer: Buffer.alloc(0)
+                        outfitPreviewImageBuffer: Buffer.alloc(0).toString('base64')
                     },
                     error: 'No image buffer provided',
                     message: 'Image buffer is required for outfit preview generation'
@@ -54,7 +54,7 @@ export class PreviewOutfitImageService {
                 return {
                     success: false,
                     data: {
-                        outfitPreviewImageBuffer: Buffer.alloc(0)
+                        outfitPreviewImageBuffer: Buffer.alloc(0).toString('base64')
                     },
                     error: 'No event description provided',
                     message: 'Event description is required for outfit preview generation'
@@ -66,7 +66,7 @@ export class PreviewOutfitImageService {
                 return {
                     success: false,
                     data: {
-                        outfitPreviewImageBuffer: Buffer.alloc(0)
+                        outfitPreviewImageBuffer: Buffer.alloc(0).toString('base64')
                     },
                     error: 'No products provided',
                     message: 'At least one product is required for outfit preview generation'
@@ -148,7 +148,7 @@ export class PreviewOutfitImageService {
             return {
                 success: true,
                 data: {
-                    outfitPreviewImageBuffer: imageBuffer
+                    outfitPreviewImageBuffer: imageBuffer.toString('base64')
                 },
                 message: 'Outfit preview image generated successfully'
             };
@@ -156,7 +156,7 @@ export class PreviewOutfitImageService {
             return {
                 success: false,
                 data: {
-                    outfitPreviewImageBuffer: Buffer.alloc(0)
+                    outfitPreviewImageBuffer: Buffer.alloc(0).toString('base64')
                 },
                 error: 'Failed to generate outfit preview',
                 message: error instanceof Error ? error.message : 'Unknown error occurred'

@@ -39,7 +39,7 @@ export interface PreviewOutfitImageRequest {
 }
 
 export interface PreviewOutfitImageData {
-  outfitPreviewImageBuffer: Buffer;
+  outfitPreviewImageBuffer: string; // Base64 encoded buffer
 }
 
 export interface ErrorResponse {
