@@ -4,6 +4,11 @@ export interface Product {
   description: string;
   imageUrl: string;
   productUrl: string;
+  rating?: number;
+  reviews?: number;
+  brand?: string;
+  condition?: string;
+  availability?: string;
 }
 
 export interface PersonalInfo {

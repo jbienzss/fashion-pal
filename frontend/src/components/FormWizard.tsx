@@ -91,14 +91,18 @@ const FormWizard: React.FC<FormWizardProps> = ({
       
       // Handle API calls based on current step
       if (currentStep === 1 && onFetchRecommendations) {
-        // After event description, fetch recommendations
+        // After event description, immediately jump to step 3 and show loading
+        setCurrentStep(2); // Jump to step 3 (index 2)
+        // Then fetch recommendations (this will show loading in step 3)
         await onFetchRecommendations();
       } else if (currentStep === 3 && onGeneratePreview) {
         // After photo upload, generate outfit preview
         await onGeneratePreview();
+        setCurrentStep(currentStep + 1);
+      } else {
+        // Normal step progression
+        setCurrentStep(currentStep + 1);
       }
-      
-      setCurrentStep(currentStep + 1);
     }
   };
 
@@ -115,7 +119,13 @@ const FormWizard: React.FC<FormWizardProps> = ({
   };
 
   const isStepCompleted = (stepIndex: number) => completedSteps.has(stepIndex);
-  const isStepAccessible = (stepIndex: number) => stepIndex <= currentStep;
+  const isStepAccessible = (stepIndex: number) => {
+    // Allow access to step 3 (index 2) if we're loading recommendations
+    if (stepIndex === 2 && isLoadingRecommendations) {
+      return true;
+    }
+    return stepIndex <= currentStep;
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4">
